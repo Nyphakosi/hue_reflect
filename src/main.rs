@@ -67,10 +67,14 @@ fn hsv_to_rgb(pixel: &Hsv) -> Rgb<u8> {
     Rgb([(r * 255.) as u8, (g * 255.) as u8, (b * 255.) as u8])
 }
 
+// hue reflection algorithm
 fn hsv_reflect(pixel: &Hsv, reflect_angle: f32) -> Hsv {
     let [hue, saturation, value] = [pixel.0[0], pixel.0[1], pixel.0[2]];
     let mut angle = hue;
 
+    // for a color C and reflection angle A
+    // output angle is 360-(C-A)+A mod 360
+    // or, 360-C+2A mod 360
     angle = angle - reflect_angle;
     while angle < 0. {
         angle += 360.;
@@ -105,7 +109,7 @@ fn main() {
     println!("Processing...");
     // process main image
     for y in 0..height/core_count {
-        for y_inner in 0..core_count {
+        for y_inner in 0..core_count { // divide image rows by number of cores in device
             let img_clone = Arc::clone(&img);
             let new_img_clone = Arc::clone(&new_img);
             handles.push(thread::spawn(move || {
