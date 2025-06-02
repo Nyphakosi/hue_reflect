@@ -70,17 +70,11 @@ fn hsv_to_rgb(pixel: &Hsv) -> Rgb<u8> {
 // hue reflection algorithm
 fn hsv_reflect(pixel: &Hsv, reflect_angle: f32) -> Hsv {
     let [hue, saturation, value] = [pixel.0[0], pixel.0[1], pixel.0[2]];
-    let mut angle = hue;
 
-    // for a color C and reflection angle A
+    // for a hue angle C and reflection angle A
     // output angle is 360-(C-A)+A mod 360
     // or, 360-C+2A mod 360
-    angle = angle - reflect_angle;
-    while angle < 0. {
-        angle += 360.;
-    }
-    angle = 360. - angle;
-    angle += reflect_angle;
+    let angle = (360. - hue + 2.*reflect_angle) % 360.;
 
     Hsv([angle, saturation, value])
 }
@@ -94,7 +88,7 @@ fn main() {
         return;
     }
     let file_path: &String = &args[1];
-    let reflect_angle: f32 = (args[2].parse::<f32>().expect("Angle must be number")) % 180.;
+    let reflect_angle: f32 = args[2].parse::<f32>().expect("Angle must be number");
     let img = Arc::new(image::open(file_path).expect("Failed to open image"));
 
     let (width, height) = img.dimensions();
